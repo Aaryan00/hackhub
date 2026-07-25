@@ -11,6 +11,7 @@ export type TeamStatus =
   | "closed";
 export type TeamMemberRole = "admin" | "member";
 export type JoinRequestStatus = "pending" | "approved" | "rejected";
+export type ConnectionStatus = "pending" | "accepted" | "rejected";
 
 type ProfileRow = {
   id: string;
@@ -74,6 +75,35 @@ type JoinRequestRow = {
   created_at: string;
 };
 
+type PostRow = {
+  id: string;
+  author_id: string;
+  title: string;
+  body: string | null;
+  event_name: string | null;
+  skills_needed: string[];
+  created_at: string;
+  updated_at: string;
+};
+
+type PostCommentRow = {
+  id: string;
+  post_id: string;
+  author_id: string;
+  body: string;
+  created_at: string;
+};
+
+type ConnectionRow = {
+  id: string;
+  requester_id: string;
+  addressee_id: string;
+  note: string | null;
+  status: ConnectionStatus;
+  created_at: string;
+  updated_at: string;
+};
+
 type Table<Row, Insert, Update> = {
   Row: Row;
   Insert: Insert;
@@ -110,6 +140,28 @@ export type Database = {
         Partial<JoinRequestRow> & { team_id: string; profile_id: string },
         Partial<JoinRequestRow>
       >;
+      posts: Table<
+        PostRow,
+        Partial<PostRow> & { author_id: string; title: string },
+        Partial<PostRow>
+      >;
+      post_comments: Table<
+        PostCommentRow,
+        Partial<PostCommentRow> & {
+          post_id: string;
+          author_id: string;
+          body: string;
+        },
+        Partial<PostCommentRow>
+      >;
+      connections: Table<
+        ConnectionRow,
+        Partial<ConnectionRow> & {
+          requester_id: string;
+          addressee_id: string;
+        },
+        Partial<ConnectionRow>
+      >;
     };
     Views: Record<string, never>;
     Functions: {
@@ -128,6 +180,7 @@ export type Database = {
       team_status: TeamStatus;
       team_member_role: TeamMemberRole;
       join_request_status: JoinRequestStatus;
+      connection_status: ConnectionStatus;
     };
   };
 };
@@ -138,3 +191,6 @@ export type Skill = SkillRow;
 export type Team = TeamRow;
 export type TeamMember = TeamMemberRow;
 export type JoinRequest = JoinRequestRow;
+export type Post = PostRow;
+export type PostComment = PostCommentRow;
+export type Connection = ConnectionRow;

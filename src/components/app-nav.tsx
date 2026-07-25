@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BadgeCheck, LogOut, Settings, User } from "lucide-react";
+import { BadgeCheck, LogOut, Settings, User, Users } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 
 const LINKS = [
   { href: "/dashboard", label: "Dashboard" },
+  { href: "/posts", label: "Posts" },
   { href: "/builders", label: "Builders" },
   { href: "/teams", label: "Teams" },
 ];
@@ -91,6 +92,9 @@ export function AppNav({ profile }: { profile: Profile }) {
               <DropdownMenuSeparator />
               <DropdownMenuItem render={<Link href={`/u/${profile.username}`} />}>
                 <User className="size-4" /> My profile
+              </DropdownMenuItem>
+              <DropdownMenuItem render={<Link href="/network" />}>
+                <Users className="size-4" /> My network
               </DropdownMenuItem>
               <DropdownMenuItem render={<Link href="/settings/profile" />}>
                 <Settings className="size-4" /> Settings

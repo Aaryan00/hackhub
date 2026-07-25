@@ -25,6 +25,21 @@ export function formatDateRange(
   return `${dayFmt.format(new Date(`${start}T00:00:00`))} – ${formatDate(end)}`;
 }
 
+/** "just now" / "5m ago" / "3h ago" / "2d ago" / "Aug 15" for a timestamp. */
+export function relativeTime(iso: string): string {
+  const then = new Date(iso).getTime();
+  const now = Date.now();
+  const secs = Math.round((now - then) / 1000);
+  if (secs < 60) return "just now";
+  const mins = Math.round(secs / 60);
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.round(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.round(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  return dayFmt.format(new Date(iso));
+}
+
 /** "in 5 days" / "2 days ago" relative to today. */
 export function daysUntil(value: string | null): string | null {
   if (!value) return null;

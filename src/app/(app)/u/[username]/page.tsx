@@ -9,6 +9,10 @@ import {
   Trophy,
 } from "lucide-react";
 
+import {
+  ConnectButton,
+  type ConnectState,
+} from "@/components/connections/connect-button";
 import { ProfileBadges } from "@/components/trust-badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +22,7 @@ import {
   GithubIcon,
   LinkedinIcon,
 } from "@/components/brand-icons";
+import { getConnectionWith } from "@/lib/actions/connections";
 import { getUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 
@@ -60,6 +65,20 @@ export default async function ProfilePage({
     .filter(Boolean) as { id: string; name: string; category: string }[];
 
   const isOwn = user?.id === profile.id;
+
+  // Connection state for the Connect button (only for other people's profiles).
+  const connection =
+    user && !isOwn ? await getConnectionWith(profile.id) : null;
+  const connectState: ConnectState = !connection
+    ? "none"
+    : connection.status === "accepted"
+      ? "connected"
+      : connection.status === "pending"
+        ? connection.requester_id === user!.id
+          ? "outgoing_pending"
+          : "incoming_pending"
+        : "none";
+
   const initials = (profile.full_name ?? username)
     .split(" ")
     .map((n) => n[0])
@@ -137,7 +156,7 @@ export default async function ProfilePage({
                     <Globe className="size-4" /> Portfolio
                   </SocialLink>
                 )}
-                {isOwn && (
+                {isOwn ? (
                   <Button
                     size="sm"
                     variant="secondary"
@@ -146,7 +165,17 @@ export default async function ProfilePage({
                   >
                     Edit profile
                   </Button>
-                )}
+                ) : user ? (
+                  <div className="ml-auto">
+                    <ConnectButton
+                      targetId={profile.id}
+                      targetName={profile.full_name ?? `@${profile.username}`}
+                      state={connectState}
+                      connectionId={connection?.id}
+                      size="sm"
+                    />
+                  </div>
+                ) : null}
               </div>
             </div>
           </div>
