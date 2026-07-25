@@ -1,65 +1,112 @@
-import Image from "next/image";
+import Link from "next/link";
+import {
+  BadgeCheck,
+  CalendarSearch,
+  Trophy,
+  Users2,
+} from "lucide-react";
 
-export default function Home() {
+import { Button } from "@/components/ui/button";
+import { getUser } from "@/lib/auth";
+
+const FEATURES = [
+  {
+    icon: Users2,
+    title: "Find trusted teammates",
+    description:
+      "Match with builders by skill, timezone and experience — not random Discord DMs.",
+  },
+  {
+    icon: BadgeCheck,
+    title: "Verified profiles",
+    description:
+      "Sign in with LinkedIn to prove you're a real builder. No more fake profiles.",
+  },
+  {
+    icon: CalendarSearch,
+    title: "Discover hackathons",
+    description:
+      "Browse online, offline and college hackathons. Save the ones you love.",
+  },
+  {
+    icon: Trophy,
+    title: "Build reputation",
+    description:
+      "Your HackHub profile becomes a trusted signal of skill and collaboration.",
+  },
+];
+
+export default async function LandingPage() {
+  const user = await getUser();
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="flex min-h-dvh flex-col">
+      <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-5">
+        <span className="text-xl font-bold tracking-tight">
+          Hack<span className="text-primary">Hub</span>
+        </span>
+        <Button
+          variant="ghost"
+          render={<Link href={user ? "/dashboard" : "/login"} />}
+        >
+          {user ? "Dashboard" : "Sign in"}
+        </Button>
+      </header>
+
+      <main className="flex-1">
+        {/* Hero */}
+        <section className="mx-auto max-w-4xl px-4 py-20 text-center sm:py-28">
+          <span className="inline-flex items-center gap-1.5 rounded-full border bg-muted/50 px-3 py-1 text-sm text-muted-foreground">
+            <BadgeCheck className="size-4 text-emerald-500" />
+            For hackathon builders
+          </span>
+          <h1 className="mt-6 text-balance text-4xl font-bold tracking-tight sm:text-6xl">
+            Find teammates. Join hackathons.{" "}
+            <span className="text-primary">Build reputation.</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="mx-auto mt-6 max-w-2xl text-balance text-lg text-muted-foreground">
+            HackHub is where developers, designers and AI builders find trusted
+            teammates, discover hackathons, and grow a reputation that recruiters
+            and organizers actually trust.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Button
+              size="lg"
+              render={<Link href={user ? "/dashboard" : "/login"} />}
+            >
+              {user ? "Go to dashboard" : "Get started — it's free"}
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              render={<Link href={user ? "/hackathons" : "/login"} />}
+            >
+              Browse hackathons
+            </Button>
+          </div>
+        </section>
+
+        {/* Features */}
+        <section className="mx-auto max-w-6xl px-4 pb-24">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {FEATURES.map(({ icon: Icon, title, description }) => (
+              <div key={title} className="rounded-xl border bg-card p-6">
+                <Icon className="size-6 text-primary" />
+                <h3 className="mt-4 font-semibold">{title}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
       </main>
+
+      <footer className="border-t">
+        <div className="mx-auto max-w-6xl px-4 py-6 text-center text-sm text-muted-foreground">
+          HackHub — built for builders. Early access.
+        </div>
+      </footer>
     </div>
   );
 }
