@@ -33,6 +33,9 @@ type ProfileRow = {
   github_verified: boolean;
   trust_tier: TrustTier | null;
   platform_score: number;
+  last_active_on: string | null;
+  login_streak: number;
+  longest_streak: number;
   onboarded: boolean;
   created_at: string;
   updated_at: string;
@@ -94,6 +97,22 @@ type PostCommentRow = {
   created_at: string;
 };
 
+type TeamRatingRow = {
+  id: string;
+  rater_id: string;
+  ratee_id: string;
+  team_id: string;
+  communication: number;
+  coding: number;
+  reliability: number;
+  collaboration: number;
+  ownership: number;
+  technical_skills: number;
+  comment: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 type ConnectionRow = {
   id: string;
   requester_id: string;
@@ -102,6 +121,18 @@ type ConnectionRow = {
   status: ConnectionStatus;
   created_at: string;
   updated_at: string;
+};
+
+type NotificationRow = {
+  id: string;
+  user_id: string;
+  actor_id: string | null;
+  type: string;
+  title: string;
+  body: string | null;
+  link: string | null;
+  read: boolean;
+  created_at: string;
 };
 
 type Table<Row, Insert, Update> = {
@@ -162,6 +193,20 @@ export type Database = {
         },
         Partial<ConnectionRow>
       >;
+      team_ratings: Table<
+        TeamRatingRow,
+        Partial<TeamRatingRow> & {
+          rater_id: string;
+          ratee_id: string;
+          team_id: string;
+        },
+        Partial<TeamRatingRow>
+      >;
+      notifications: Table<
+        NotificationRow,
+        Partial<NotificationRow> & { user_id: string; type: string; title: string },
+        Partial<NotificationRow>
+      >;
     };
     Views: Record<string, never>;
     Functions: {
@@ -172,6 +217,18 @@ export type Database = {
       is_team_admin: {
         Args: { _team_id: string };
         Returns: boolean;
+      };
+      record_activity: {
+        Args: Record<string, never>;
+        Returns: undefined;
+      };
+      recompute_platform_score: {
+        Args: { uid: string };
+        Returns: undefined;
+      };
+      display_name: {
+        Args: { uid: string };
+        Returns: string;
       };
     };
     Enums: {
@@ -194,3 +251,16 @@ export type JoinRequest = JoinRequestRow;
 export type Post = PostRow;
 export type PostComment = PostCommentRow;
 export type Connection = ConnectionRow;
+export type TeamRating = TeamRatingRow;
+export type Notification = NotificationRow;
+
+/** The six rating categories, in display order. */
+export const RATING_CATEGORIES = [
+  "communication",
+  "coding",
+  "reliability",
+  "collaboration",
+  "ownership",
+  "technical_skills",
+] as const;
+export type RatingCategory = (typeof RATING_CATEGORIES)[number];

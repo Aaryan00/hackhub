@@ -10,6 +10,7 @@ import {
   RequestToJoinButton,
   TeamStatusControl,
 } from "@/components/teams/team-actions";
+import { RateTeammateButton } from "@/components/ratings/rate-dialog";
 import { TeamStatusBadge } from "@/components/teams/team-status-badge";
 import { VerifiedBadge } from "@/components/trust-badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -220,14 +221,24 @@ export default async function TeamDetailPage({
                     <Crown className="size-3.5 text-amber-500" /> Admin
                   </Badge>
                 )}
-                {isAdmin && member.profiles.id !== team.admin_id && (
-                  <div className="ml-auto">
+                <div className="ml-auto flex items-center gap-2">
+                  {isMember && member.profiles.id !== user?.id && (
+                    <RateTeammateButton
+                      teamId={team.id}
+                      rateeId={member.profiles.id}
+                      rateeName={
+                        member.profiles.full_name ??
+                        `@${member.profiles.username}`
+                      }
+                    />
+                  )}
+                  {isAdmin && member.profiles.id !== team.admin_id && (
                     <RemoveMemberButton
                       teamId={team.id}
                       profileId={member.profiles.id}
                     />
-                  </div>
-                )}
+                  )}
+                </div>
               </CardContent>
             </Card>
           ))}

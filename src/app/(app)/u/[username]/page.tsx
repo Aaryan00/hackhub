@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   Building2,
+  Flame,
   GraduationCap,
   Globe,
   Languages,
@@ -13,6 +14,7 @@ import {
   ConnectButton,
   type ConnectState,
 } from "@/components/connections/connect-button";
+import { RatingSummary } from "@/components/ratings/rating-summary";
 import { ProfileBadges } from "@/components/trust-badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -50,11 +52,17 @@ export default async function ProfilePage({
 
   if (!profile) notFound();
 
-  const [{ data: skillRows }, user] = await Promise.all([
+  const [{ data: skillRows }, { data: ratingRows }, user] = await Promise.all([
     supabase
       .from("profile_skills")
       .select("skills(id, name, category)")
       .eq("profile_id", profile.id),
+    supabase
+      .from("team_ratings")
+      .select(
+        "communication, coding, reliability, collaboration, ownership, technical_skills",
+      )
+      .eq("ratee_id", profile.id),
     getUser(),
   ]);
 
@@ -63,6 +71,15 @@ export default async function ProfilePage({
   }[])
     .map((r) => r.skills)
     .filter(Boolean) as { id: string; name: string; category: string }[];
+
+  const ratings = (ratingRows ?? []) as {
+    communication: number;
+    coding: number;
+    reliability: number;
+    collaboration: number;
+    ownership: number;
+    technical_skills: number;
+  }[];
 
   const isOwn = user?.id === profile.id;
 
@@ -180,15 +197,37 @@ export default async function ProfilePage({
             </div>
           </div>
 
-          {/* Platform score (Phase 2 will compute; shows the scaffold today) */}
-          <div className="mt-6 flex items-center gap-2 rounded-lg border bg-muted/30 px-4 py-3">
-            <Trophy className="size-4 text-amber-500" />
-            <span className="text-sm">
-              <span className="font-semibold">
-                {profile.platform_score.toLocaleString()} XP
-              </span>{" "}
-              <span className="text-muted-foreground">Platform Score</span>
-            </span>
+          {/* Platform score + login streak */}
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2 rounded-lg border bg-muted/30 px-4 py-3">
+              <Trophy className="size-4 text-amber-500" />
+              <span className="text-sm">
+                <span className="font-semibold">
+                  {profile.platform_score.toLocaleString()} XP
+                </span>{" "}
+                <span className="text-muted-foreground">Platform Score</span>
+              </span>
+            </div>
+            {profile.login_streak > 0 && (
+              <div className="flex items-center gap-2 rounded-lg border bg-muted/30 px-4 py-3">
+                <Flame className="size-4 text-orange-500" />
+                <span className="text-sm">
+                  <span className="font-semibold">{profile.login_streak}</span>{" "}
+                  <span className="text-muted-foreground">
+                    day streak
+                    {profile.longest_streak > profile.login_streak &&
+                      ` · best ${profile.longest_streak}`}
+                  </span>
+                </span>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-6">
+            <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-muted-foreground">
+              Teammate rating
+            </h2>
+            <RatingSummary ratings={ratings} />
           </div>
 
           {skills.length > 0 && (

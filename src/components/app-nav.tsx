@@ -16,8 +16,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 import { signOut } from "@/lib/actions/auth";
 import type { Profile } from "@/lib/database.types";
+import type { NotificationSummary } from "@/lib/notifications";
 import { cn } from "@/lib/utils";
 
 const LINKS = [
@@ -27,7 +29,13 @@ const LINKS = [
   { href: "/teams", label: "Teams" },
 ];
 
-export function AppNav({ profile }: { profile: Profile }) {
+export function AppNav({
+  profile,
+  notifications,
+}: {
+  profile: Profile;
+  notifications: NotificationSummary;
+}) {
   const pathname = usePathname();
   const [, startLogout] = useTransition();
   const initials = (profile.full_name ?? profile.username ?? "?")
@@ -65,7 +73,11 @@ export function AppNav({ profile }: { profile: Profile }) {
           })}
         </nav>
 
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-1">
+          <NotificationBell
+            items={notifications.items}
+            unread={notifications.unread}
+          />
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
