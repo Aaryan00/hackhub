@@ -3,8 +3,6 @@
 
 export type ExperienceLevel = "student" | "junior" | "mid" | "senior" | "lead";
 export type TrustTier = "bronze" | "silver" | "gold";
-export type HackathonMode = "online" | "offline" | "hybrid";
-export type Difficulty = "beginner" | "intermediate" | "advanced";
 export type TeamStatus =
   | "looking_for_members"
   | "building"
@@ -46,36 +44,13 @@ type SkillRow = {
   category: string;
 };
 
-type HackathonRow = {
-  id: string;
-  name: string;
-  organizer: string | null;
-  description: string | null;
-  prize_pool: string | null;
-  registration_deadline: string | null;
-  start_date: string | null;
-  end_date: string | null;
-  theme: string | null;
-  mode: HackathonMode;
-  min_team_size: number;
-  max_team_size: number;
-  technologies: string[];
-  difficulty: Difficulty;
-  registration_link: string | null;
-  banner_url: string | null;
-  location: string | null;
-  is_weekend: boolean;
-  created_by: string | null;
-  created_at: string;
-};
-
 type TeamRow = {
   id: string;
   name: string;
   logo_url: string | null;
   description: string | null;
   skills_needed: string[];
-  hackathon_id: string | null;
+  event_name: string | null;
   admin_id: string;
   status: TeamStatus;
   max_members: number;
@@ -120,16 +95,6 @@ export type Database = {
         { profile_id: string; skill_id: string },
         { profile_id?: string; skill_id?: string }
       >;
-      hackathons: Table<
-        HackathonRow,
-        Partial<HackathonRow> & { name: string },
-        Partial<HackathonRow>
-      >;
-      hackathon_saves: Table<
-        { profile_id: string; hackathon_id: string; created_at: string },
-        { profile_id: string; hackathon_id: string },
-        { profile_id?: string; hackathon_id?: string }
-      >;
       teams: Table<
         TeamRow,
         Partial<TeamRow> & { name: string; admin_id: string },
@@ -160,8 +125,6 @@ export type Database = {
     Enums: {
       experience_level: ExperienceLevel;
       trust_tier: TrustTier;
-      hackathon_mode: HackathonMode;
-      difficulty: Difficulty;
       team_status: TeamStatus;
       team_member_role: TeamMemberRole;
       join_request_status: JoinRequestStatus;
@@ -172,7 +135,6 @@ export type Database = {
 // Convenience row aliases used across the app.
 export type Profile = ProfileRow;
 export type Skill = SkillRow;
-export type Hackathon = HackathonRow;
 export type Team = TeamRow;
 export type TeamMember = TeamMemberRow;
 export type JoinRequest = JoinRequestRow;

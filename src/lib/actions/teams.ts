@@ -38,7 +38,7 @@ export async function createTeam(
   if (!name) return { error: "Team name is required." };
 
   const description = formData.get("description")?.toString().trim() || null;
-  const hackathonId = formData.get("hackathon_id")?.toString() || null;
+  const eventName = formData.get("event_name")?.toString().trim() || null;
   const maxMembers = Number(formData.get("max_members") ?? 4) || 4;
   const skillsNeeded = (formData.get("skills_needed")?.toString() ?? "")
     .split(",")
@@ -50,7 +50,7 @@ export async function createTeam(
     .insert({
       name,
       description,
-      hackathon_id: hackathonId,
+      event_name: eventName,
       admin_id: user.id,
       skills_needed: skillsNeeded,
       max_members: Math.min(Math.max(maxMembers, 1), 10),

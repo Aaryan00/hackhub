@@ -46,7 +46,7 @@ export default async function TeamDetailPage({
 
   const { data: team } = await supabase
     .from("teams")
-    .select("*, hackathons(id, name)")
+    .select("*")
     .eq("id", id)
     .single();
   if (!team) notFound();
@@ -84,11 +84,6 @@ export default async function TeamDetailPage({
   const requests = (requestData ?? []) as unknown as RequestRow[];
   const myRequest = (myRequestRes.data as { status?: string } | null) ?? null;
 
-  const hackathon = (team.hackathons as unknown as {
-    id: string;
-    name: string;
-  } | null);
-
   const isAdmin = user?.id === team.admin_id;
   const isMember = members.some((m) => m.profiles.id === user?.id);
   const isFull = members.length >= team.max_members;
@@ -118,13 +113,10 @@ export default async function TeamDetailPage({
                 <h1 className="text-2xl font-bold tracking-tight">{team.name}</h1>
                 <TeamStatusBadge status={team.status} />
               </div>
-              {hackathon && (
-                <Link
-                  href={`/hackathons/${hackathon.id}`}
-                  className="text-sm text-primary hover:underline"
-                >
-                  {hackathon.name}
-                </Link>
+              {team.event_name && (
+                <p className="text-sm text-muted-foreground">
+                  {team.event_name}
+                </p>
               )}
               {team.description && (
                 <p className="mt-3 text-sm leading-relaxed">{team.description}</p>

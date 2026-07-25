@@ -25,10 +25,10 @@ teammates, form teams, and grow a verified builder reputation. This repo is the
   - Sign in with Google/GitHub → a **LinkedIn profile URL is required** during
     onboarding before you can enter the app.
 - **Profiles** — full builder profile (bio, skills, experience, links, avatar).
-- **Hackathon directory** — browse, filter (mode / difficulty / weekend /
-  search), view details, save.
-- **Teams** — create teams, request to join, admin approve/reject, member
-  management, team status.
+- **Builders directory** — search members by name/username and filter by skill,
+  experience, location, college, company, and verified-only.
+- **Teams** — create teams (with an optional free-text event/hackathon),
+  request to join, admin approve/reject, member management, team status.
 
 Reputation/XP, challenges, leaderboards, community feed and AI features are
 **Phase 2/3** — the database already has columns/room for them.
@@ -59,7 +59,9 @@ In the Supabase dashboard, open **SQL Editor** and run, in order:
 
 1. `supabase/migrations/20260725000001_init.sql` — tables, RLS, triggers
 2. `supabase/migrations/20260725000002_storage.sql` — avatar / logo buckets
-3. `supabase/seed.sql` — skills catalogue + sample hackathons
+3. `supabase/migrations/20260725000003_remove_hackathons.sql` — drops the
+   hackathon tables and gives teams a free-text `event_name`
+4. `supabase/seed.sql` — skills catalogue
 
 > Or, with the [Supabase CLI](https://supabase.com/docs/guides/cli):
 > `supabase link --project-ref <ref> && supabase db push`, then run `seed.sql`.
@@ -120,7 +122,7 @@ src/
   app/
     (app)/            # authed routes (nav shell + onboarding guard)
       dashboard/
-      hackathons/
+      builders/       # member search / directory
       teams/
       settings/
       u/[username]/   # public profile
@@ -134,12 +136,12 @@ src/
   proxy.ts            # session refresh + route guard (Next 16 "proxy")
 supabase/
   migrations/         # schema, RLS, storage
-  seed.sql            # skills + sample hackathons
+  seed.sql            # skills catalogue
 ```
 
 ## Roadmap
 
-- **Phase 1 (this MVP)** — auth, profiles, hackathon directory, teams.
+- **Phase 1 (this MVP)** — auth, profiles, builders directory, teams.
 - **Phase 2** — daily challenges, XP/streaks/badges, reputation & team ratings,
   leaderboards, AI teammate/idea suggestions, community feed.
 - **Phase 3** — organizer & recruiter dashboards, team chat, AI team analyzer,

@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -21,7 +22,7 @@ import { cn } from "@/lib/utils";
 
 const LINKS = [
   { href: "/dashboard", label: "Dashboard" },
-  { href: "/hackathons", label: "Hackathons" },
+  { href: "/builders", label: "Builders" },
   { href: "/teams", label: "Teams" },
 ];
 
@@ -79,12 +80,14 @@ export function AppNav({ profile }: { profile: Profile }) {
               )}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-52">
-              <DropdownMenuLabel className="flex flex-col">
-                <span>{profile.full_name}</span>
-                <span className="text-xs font-normal text-muted-foreground">
-                  @{profile.username}
-                </span>
-              </DropdownMenuLabel>
+              <DropdownMenuGroup>
+                <DropdownMenuLabel className="flex flex-col">
+                  <span>{profile.full_name}</span>
+                  <span className="text-xs font-normal text-muted-foreground">
+                    @{profile.username}
+                  </span>
+                </DropdownMenuLabel>
+              </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuItem render={<Link href={`/u/${profile.username}`} />}>
                 <User className="size-4" /> My profile

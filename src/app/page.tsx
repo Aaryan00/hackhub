@@ -1,10 +1,5 @@
 import Link from "next/link";
-import {
-  BadgeCheck,
-  CalendarSearch,
-  Trophy,
-  Users2,
-} from "lucide-react";
+import { BadgeCheck, Trophy, Users2, UsersRound } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { getUser } from "@/lib/auth";
@@ -23,10 +18,10 @@ const FEATURES = [
       "Sign in with LinkedIn to prove you're a real builder. No more fake profiles.",
   },
   {
-    icon: CalendarSearch,
-    title: "Discover hackathons",
+    icon: UsersRound,
+    title: "Build & join teams",
     description:
-      "Browse online, offline and college hackathons. Save the ones you love.",
+      "Create a team, review join requests, and manage your crew in one place.",
   },
   {
     icon: Trophy,
@@ -79,9 +74,9 @@ export default async function LandingPage() {
             <Button
               size="lg"
               variant="outline"
-              render={<Link href={user ? "/hackathons" : "/login"} />}
+              render={<Link href={user ? "/builders" : "/login"} />}
             >
-              Browse hackathons
+              Find teammates
             </Button>
           </div>
         </section>

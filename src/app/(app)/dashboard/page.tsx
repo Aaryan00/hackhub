@@ -1,13 +1,12 @@
 import Link from "next/link";
-import { ArrowRight, Plus } from "lucide-react";
+import { ArrowRight, Plus, Search, Users2 } from "lucide-react";
 
-import { HackathonCard } from "@/components/hackathons/hackathon-card";
 import { TeamCard } from "@/components/teams/team-card";
 import { VerifiedBadge } from "@/components/trust-badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { getProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import type { Hackathon } from "@/lib/database.types";
 
 export const metadata = { title: "Dashboard · HackHub" };
 
@@ -17,13 +16,12 @@ type TeamRow = {
   logo_url: string | null;
   description: string | null;
   skills_needed: string[];
-  hackathon_id: string | null;
+  event_name: string | null;
   admin_id: string;
   status: "looking_for_members" | "building" | "submitted" | "winner" | "closed";
   max_members: number;
   created_at: string;
   updated_at: string;
-  hackathons: { name: string } | null;
   team_members: { count: number }[];
 };
 
@@ -33,38 +31,20 @@ export default async function DashboardPage() {
 
   const supabase = await createClient();
 
-  // Teams I'm on.
   const { data: memberRows } = await supabase
     .from("team_members")
     .select("team_id")
     .eq("profile_id", profile.id);
   const teamIds = (memberRows ?? []).map((r) => r.team_id);
 
-  const [{ data: myTeamsData }, { data: savedRows }, { data: upcomingData }] =
-    await Promise.all([
-      teamIds.length
-        ? supabase
-            .from("teams")
-            .select("*, hackathons(name), team_members(count)")
-            .in("id", teamIds)
-        : Promise.resolve({ data: [] }),
-      supabase
-        .from("hackathon_saves")
-        .select("hackathon_id, hackathons(*)")
-        .eq("profile_id", profile.id),
-      supabase
-        .from("hackathons")
-        .select("*")
-        .order("start_date", { ascending: true })
-        .limit(4),
-    ]);
+  const { data: myTeamsData } = teamIds.length
+    ? await supabase
+        .from("teams")
+        .select("*, team_members(count)")
+        .in("id", teamIds)
+    : { data: [] };
 
   const myTeams = (myTeamsData ?? []) as unknown as TeamRow[];
-  const savedHackathons = (savedRows ?? [])
-    .map((r) => r.hackathons as unknown as Hackathon)
-    .filter(Boolean);
-  const savedIds = new Set(savedHackathons.map((h) => h.id));
-  const upcoming = (upcomingData ?? []) as Hackathon[];
 
   return (
     <div className="space-y-10">
@@ -80,22 +60,42 @@ export default async function DashboardPage() {
         </p>
       </div>
 
+      {/* Quick actions */}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <ActionCard
+          href="/builders"
+          icon={Search}
+          title="Find teammates"
+          description="Search builders by skill, experience and location."
+        />
+        <ActionCard
+          href="/teams"
+          icon={Users2}
+          title="Browse teams"
+          description="Join a team that's looking for members, or start your own."
+        />
+      </div>
+
       {/* My teams */}
-      <Section
-        title="My teams"
-        href="/teams"
-        action={
-          <Button
-            size="sm"
-            variant="outline"
-            render={<Link href="/teams/new" />}
-          >
-            <Plus className="size-4" /> New team
-          </Button>
-        }
-      >
+      <section>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-xl font-semibold tracking-tight">My teams</h2>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              render={<Link href="/teams/new" />}
+            >
+              <Plus className="size-4" /> New team
+            </Button>
+            <Button size="sm" variant="ghost" render={<Link href="/teams" />}>
+              View all <ArrowRight className="size-4" />
+            </Button>
+          </div>
+        </div>
+
         {myTeams.length === 0 ? (
-          <EmptyState>
+          <div className="rounded-lg border border-dashed py-12 text-center text-muted-foreground">
             You&apos;re not on a team yet.{" "}
             <Link href="/teams" className="font-medium text-primary hover:underline">
               Find one
@@ -108,7 +108,7 @@ export default async function DashboardPage() {
               create your own
             </Link>
             .
-          </EmptyState>
+          </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {myTeams.map((team) => (
@@ -116,75 +116,39 @@ export default async function DashboardPage() {
                 key={team.id}
                 team={team}
                 memberCount={team.team_members[0]?.count ?? 0}
-                hackathonName={team.hackathons?.name}
               />
             ))}
           </div>
         )}
-      </Section>
-
-      {/* Saved hackathons */}
-      {savedHackathons.length > 0 && (
-        <Section title="Saved hackathons" href="/hackathons">
-          <div className="grid gap-4 md:grid-cols-2">
-            {savedHackathons.map((h) => (
-              <HackathonCard key={h.id} hackathon={h} saved />
-            ))}
-          </div>
-        </Section>
-      )}
-
-      {/* Upcoming hackathons */}
-      <Section title="Upcoming hackathons" href="/hackathons">
-        {upcoming.length === 0 ? (
-          <EmptyState>No hackathons yet — check back soon.</EmptyState>
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2">
-            {upcoming.map((h) => (
-              <HackathonCard
-                key={h.id}
-                hackathon={h}
-                saved={savedIds.has(h.id)}
-              />
-            ))}
-          </div>
-        )}
-      </Section>
+      </section>
     </div>
   );
 }
 
-function Section({
-  title,
+function ActionCard({
   href,
-  action,
-  children,
+  icon: Icon,
+  title,
+  description,
 }: {
-  title: string;
   href: string;
-  action?: React.ReactNode;
-  children: React.ReactNode;
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  description: string;
 }) {
   return (
-    <section>
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
-        <div className="flex items-center gap-2">
-          {action}
-          <Button size="sm" variant="ghost" render={<Link href={href} />}>
-            View all <ArrowRight className="size-4" />
-          </Button>
-        </div>
-      </div>
-      {children}
-    </section>
-  );
-}
-
-function EmptyState({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="rounded-lg border border-dashed py-12 text-center text-muted-foreground">
-      {children}
-    </div>
+    <Link href={href}>
+      <Card className="transition-shadow hover:shadow-md">
+        <CardContent className="flex items-start gap-4 pt-6">
+          <div className="rounded-lg bg-primary/10 p-2.5">
+            <Icon className="size-5 text-primary" />
+          </div>
+          <div>
+            <h3 className="font-semibold">{title}</h3>
+            <p className="text-sm text-muted-foreground">{description}</p>
+          </div>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }

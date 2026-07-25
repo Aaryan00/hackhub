@@ -14,13 +14,12 @@ type TeamWithJoins = {
   logo_url: string | null;
   description: string | null;
   skills_needed: string[];
-  hackathon_id: string | null;
+  event_name: string | null;
   admin_id: string;
   status: "looking_for_members" | "building" | "submitted" | "winner" | "closed";
   max_members: number;
   created_at: string;
   updated_at: string;
-  hackathons: { name: string } | null;
   team_members: { count: number }[];
 };
 
@@ -34,7 +33,7 @@ export default async function TeamsPage({
 
   let query = supabase
     .from("teams")
-    .select("*, hackathons(name), team_members(count)")
+    .select("*, team_members(count)")
     .order("created_at", { ascending: false });
 
   if (q) query = query.ilike("name", `%${q}%`);
@@ -74,7 +73,6 @@ export default async function TeamsPage({
               key={team.id}
               team={team}
               memberCount={team.team_members[0]?.count ?? 0}
-              hackathonName={team.hackathons?.name}
             />
           ))}
         </div>

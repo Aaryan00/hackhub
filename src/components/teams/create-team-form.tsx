@@ -8,16 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { createTeam, type TeamFormState } from "@/lib/actions/teams";
-
-type HackathonOption = { id: string; name: string };
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -28,13 +19,7 @@ function SubmitButton() {
   );
 }
 
-export function CreateTeamForm({
-  hackathons,
-  defaultHackathonId,
-}: {
-  hackathons: HackathonOption[];
-  defaultHackathonId?: string;
-}) {
+export function CreateTeamForm() {
   const [state, formAction] = useActionState<TeamFormState, FormData>(
     createTeam,
     {},
@@ -64,19 +49,15 @@ export function CreateTeamForm({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="hackathon_id">Hackathon</Label>
-        <Select name="hackathon_id" defaultValue={defaultHackathonId}>
-          <SelectTrigger id="hackathon_id">
-            <SelectValue placeholder="Select a hackathon (optional)" />
-          </SelectTrigger>
-          <SelectContent>
-            {hackathons.map((h) => (
-              <SelectItem key={h.id} value={h.id}>
-                {h.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Label htmlFor="event_name">Event / hackathon (optional)</Label>
+        <Input
+          id="event_name"
+          name="event_name"
+          placeholder="e.g. Smart India Hackathon 2026"
+        />
+        <p className="text-xs text-muted-foreground">
+          The hackathon or event this team is for, if any.
+        </p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">

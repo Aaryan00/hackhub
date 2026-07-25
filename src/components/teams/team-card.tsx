@@ -10,11 +10,9 @@ import type { Team } from "@/lib/database.types";
 export function TeamCard({
   team,
   memberCount,
-  hackathonName,
 }: {
   team: Team;
   memberCount: number;
-  hackathonName?: string | null;
 }) {
   const initials = team.name
     .split(" ")
@@ -40,9 +38,9 @@ export function TeamCard({
               </Link>
               <TeamStatusBadge status={team.status} />
             </div>
-            {hackathonName && (
+            {team.event_name && (
               <p className="truncate text-sm text-muted-foreground">
-                {hackathonName}
+                {team.event_name}
               </p>
             )}
           </div>
